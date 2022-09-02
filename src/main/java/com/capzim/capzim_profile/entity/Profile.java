@@ -1,5 +1,6 @@
 package com.capzim.capzim_profile.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
@@ -9,6 +10,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -44,7 +46,6 @@ public class Profile {
     @Enumerated(EnumType.STRING)
     private ForeignOrLocal foreignOrLocal;
 
-
     private String nationalId;
 
     private String passportNumber;
@@ -69,13 +70,33 @@ public class Profile {
 
     private String pathToSignature;
 
+    private String pathToIdDocument;
+
+    private String pathToProfilePicture;
+
+    private boolean enabled;
+
+    private String status;
+
+    private UUID approvedBy;
+
+    private boolean termsAndConditionsAccepted;
+
+    @OneToMany(
+            mappedBy = "profile",
+            fetch = FetchType.LAZY,
+            orphanRemoval = true,
+            cascade = CascadeType.ALL
+    )
+    @JsonIgnoreProperties("profile")
+    @ToString.Exclude
+    private List<KycDocument> kycDocuments;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
 
     @Override
     public boolean equals(Object o) {
@@ -100,9 +121,10 @@ enum ForeignOrLocal {
     FOREIGN,LOCAL
 }
 
-enum PrimaryOrJoint {
-    PRIMARY,JOINT
-}
+// TODO: 2/9/2022 Add this to investor management service
+//enum PrimaryOrJoint {
+//    PRIMARY,JOINT
+//}
 
 
 
