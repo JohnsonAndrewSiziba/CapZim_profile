@@ -34,10 +34,6 @@ public class Profile {
     @Column(unique = true)
     private UUID userId;
 
-    private String foreNames;
-
-    private String surname;
-
     private Date dateOfBirth;
 
     @Enumerated(EnumType.STRING)
@@ -58,11 +54,7 @@ public class Profile {
 
     private String country;
 
-    private String telephone;
-
     private String cellphoneNumber;
-
-    private String emailAddress;
 
     // TODO: 2/9/2022 Add this in investor management service
 //    @Enumerated(EnumType.STRING)
@@ -91,6 +83,28 @@ public class Profile {
     @JsonIgnoreProperties("profile")
     @ToString.Exclude
     private List<KycDocument> kycDocuments;
+
+
+    @OneToMany(
+            mappedBy = "profile",
+            fetch = FetchType.LAZY,
+            orphanRemoval = true,
+            cascade = CascadeType.ALL
+    )
+    @JsonIgnoreProperties("profile")
+    @ToString.Exclude
+    private List<SecondaryPhoneNumber> secondaryPhoneNumbers;
+
+
+    @OneToMany(
+            mappedBy = "profile",
+            fetch = FetchType.LAZY,
+            orphanRemoval = true,
+            cascade = CascadeType.ALL
+    )
+    @JsonIgnoreProperties("profile")
+    @ToString.Exclude
+    private List<SecondaryEmail> secondaryEmails;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
