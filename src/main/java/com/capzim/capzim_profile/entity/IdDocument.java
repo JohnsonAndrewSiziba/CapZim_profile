@@ -53,6 +53,8 @@ public class IdDocument {
 
     private UUID verifiedBy;
 
+    private String comment;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

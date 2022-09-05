@@ -108,6 +108,18 @@ public class Profile {
     @ToString.Exclude
     private List<SecondaryEmail> secondaryEmails;
 
+
+    @OneToMany(
+            mappedBy = "profile",
+            fetch = FetchType.LAZY,
+            orphanRemoval = true,
+            cascade = CascadeType.ALL
+    )
+    @JsonIgnoreProperties("profile")
+    @ToString.Exclude
+    private List<IdDocument> idDocuments;
+
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 
