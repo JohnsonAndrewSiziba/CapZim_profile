@@ -70,11 +70,13 @@ public class Profile {
 
     private boolean enabled;
 
-    private String status;
+    private boolean approved;
+
+    private String comment;
 
     private UUID approvedBy;
 
-    private boolean termsAndConditionsAccepted;
+    private boolean termsAndConditionsAccepted = true;
 
     @OneToMany(
             mappedBy = "profile",

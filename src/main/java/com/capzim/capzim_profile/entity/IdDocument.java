@@ -24,6 +24,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class IdDocument {
+    
     @Id
     @GeneratedValue
     @Type(type="org.hibernate.type.UUIDCharType")
