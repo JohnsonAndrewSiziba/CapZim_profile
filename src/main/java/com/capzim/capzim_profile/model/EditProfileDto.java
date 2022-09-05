@@ -5,7 +5,6 @@ import com.capzim.capzim_profile.types.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import org.springframework.web.multipart.MultipartFile;
 
 /**

@@ -1,8 +1,10 @@
 package com.capzim.capzim_profile.controller;
 
+import com.capzim.capzim_profile.entity.KycDocument;
 import com.capzim.capzim_profile.entity.Profile;
 import com.capzim.capzim_profile.model.EditProfileDto;
 import com.capzim.capzim_profile.model.KycDocumentRequestDto;
+import com.capzim.capzim_profile.model.KycDocumentResponseModel;
 import com.capzim.capzim_profile.model.ProfileResponseModel;
 import com.capzim.capzim_profile.service.ProfileService;
 import lombok.RequiredArgsConstructor;
@@ -85,7 +87,7 @@ public class ProfileController {
 
     @GetMapping("/get_profile")
     private ResponseEntity<ProfileResponseModel> getProfile(@RequestHeader("x-auth-user-id") UUID userId){
-        Profile profile = profileService.getUserProfile(userId);
+        Profile profile = profileService.getProfileByUserId(userId);
         ProfileResponseModel profileResponseModel = new ProfileResponseModel(profile);
 
         profileResponseModel.setProfilePicture("/api/v1/profiles/get_profile_picture");
@@ -102,13 +104,13 @@ public class ProfileController {
     }
 
 
-    private ResponseEntity<?> addKycDocument(
+    @PostMapping("/save_kyc_document")
+    private ResponseEntity<KycDocumentResponseModel> addKycDocument(
             @ModelAttribute KycDocumentRequestDto kycDocumentRequestDto,
             @RequestHeader("x-auth-user-id") UUID userId
-        )
-    {
-        // TODO: 5/9/2022 Add a new kyc document
-        return null;
+        ) throws Exception {
+        KycDocument kycDocument = profileService.addKycDocument(userId, kycDocumentRequestDto);
+        return ResponseEntity.ok().body(new KycDocumentResponseModel(kycDocument));
     }
 
 

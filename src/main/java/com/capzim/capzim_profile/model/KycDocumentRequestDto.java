@@ -20,5 +20,5 @@ public class KycDocumentRequestDto {
 
     private String description;
 
-    private MultipartFile kycDocument;
+    private MultipartFile kycFile;
 }

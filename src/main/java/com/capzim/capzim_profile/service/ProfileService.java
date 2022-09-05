@@ -1,7 +1,9 @@
 package com.capzim.capzim_profile.service;
 
+import com.capzim.capzim_profile.entity.KycDocument;
 import com.capzim.capzim_profile.entity.Profile;
 import com.capzim.capzim_profile.model.EditProfileDto;
+import com.capzim.capzim_profile.model.KycDocumentRequestDto;
 import com.capzim.capzim_profile.repository.KycDocumentRepository;
 import com.capzim.capzim_profile.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
@@ -62,9 +64,9 @@ public class ProfileService {
 
     public Profile updateProfile(UUID userId, EditProfileDto editProfileDto) throws Exception {
 
-        this.createProfileIfNotExist(userId);
+        log.info("Inside updateProfile method of ProfileService");
 
-        Profile profile = profileRepository.findProfileByUserId(userId);
+        Profile profile = this.getProfileByUserId(userId);
 
         SimpleDateFormat df = new SimpleDateFormat("d-M-y");
         Date dateOfBirth = df.parse(editProfileDto.getDateOfBirth());
@@ -99,6 +101,8 @@ public class ProfileService {
     }
 
     public Profile saveProfilePicture(MultipartFile file, Profile profile) throws Exception {
+        log.info("Inside saveProfilePicture method of ProfileService");
+
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         try {
 
@@ -119,6 +123,8 @@ public class ProfileService {
     }
 
     public Profile saveSignature(MultipartFile file, Profile profile) throws Exception {
+        log.info("Inside saveSignature method of ProfileService");
+
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         try {
 
@@ -139,11 +145,49 @@ public class ProfileService {
     }
 
     public Profile getProfileByUserId(UUID userId) {
-        return profileRepository.getProfileByUserId(userId);
+        log.info("Inside getProfileByUserId of ProfileService");
+        Profile profile = profileRepository.findProfileByUserId(userId);
+
+        if (profile == null){
+            log.info("Creating new profile for user with id: {}", userId.toString());
+            profile = new Profile();
+            profile.setUserId(userId);
+            profileRepository.save(profile);
+        }
+
+        return profile;
     }
 
-    public Profile getUserProfile(UUID userId) {
-        this.createProfileIfNotExist(userId);
-        return this.getProfileByUserId(userId);
+    public KycDocument addKycDocument(UUID userId, KycDocumentRequestDto kycDocumentRequestDto) throws Exception {
+        log.info("Inside addKycDocument method of ProfileService");
+
+        Profile profile = this.getProfileByUserId(userId);
+
+        KycDocument kycDocument = new KycDocument();
+        kycDocument.setProfile(profile);
+
+        kycDocument.setTitle(kycDocumentRequestDto.getTitle());
+
+        kycDocument.setDescription(kycDocumentRequestDto.getDescription());
+
+        String fileName = StringUtils.cleanPath(Objects.requireNonNull(kycDocumentRequestDto.getKycFile().getOriginalFilename()));
+
+        try {
+
+            if (fileName.contains("..")) {
+                throw new Exception("Filename contains invalid path sequence: " + fileName);
+            }
+
+            kycDocument.setKycFile(kycDocumentRequestDto.getKycFile().getBytes());
+            kycDocument.setKycFileName(fileName);
+            kycDocument.setKycFileType(kycDocumentRequestDto.getKycFile().getContentType());
+
+            return kycDocumentRepository.save(kycDocument);
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new Exception("Could not save kyc document file: " + fileName);
+        }
+
     }
 }
