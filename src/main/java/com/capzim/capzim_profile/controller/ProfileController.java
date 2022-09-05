@@ -1,12 +1,19 @@
 package com.capzim.capzim_profile.controller;
 
 import com.capzim.capzim_profile.entity.Profile;
-import com.capzim.capzim_profile.model.ProfileDto;
+import com.capzim.capzim_profile.model.EditProfileDto;
+import com.capzim.capzim_profile.model.ProfileResponseModel;
 import com.capzim.capzim_profile.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.core.io.Resource;
+
 
 import javax.validation.Valid;
 import java.util.UUID;
@@ -26,27 +33,64 @@ public class ProfileController {
     private final ProfileService profileService;
 
 
-    @PostMapping("/edit_profile/{profileId}")
-    private ResponseEntity<?> editProfile(
-                @Valid @ModelAttribute Profile profile,
-                @PathVariable("profileId") String profileId,
+    @PostMapping("/edit_profile")
+    private ResponseEntity<ProfileResponseModel> editProfile(
+                @Valid @ModelAttribute EditProfileDto editProfileDto,
                 @RequestHeader("x-auth-user-id") UUID userId,
                 @RequestHeader("Authorization") String bearerToken
-            )
-    {
-        profileService.createProfileIfNotExist(bearerToken, userId);
+            ) throws Exception {
+        Profile profile = profileService.updateProfile(userId, editProfileDto);
 
-        // TODO: 5/9/2022 Check if the user has permission to edit the profile
-        // TODO: 5/9/2022 Get the user ID from headers
+        ProfileResponseModel profileResponseModel = new ProfileResponseModel(profile);
 
-        return  null;
+        String profilePictureUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/api/v1/profiles/get_profile_picture")
+                .path(profile.getId().toString())
+                .toUriString();
+
+        String signatureUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/api/v1/profiles/get_signature")
+                .path(profile.getId().toString())
+                .toUriString();
+
+        profileResponseModel.setProfilePicture("/api/v1/profiles/get_profile_picture");
+        profileResponseModel.setSignature("/api/v1/profiles/get_signature");
+
+        return ResponseEntity.ok().body(profileResponseModel);
     }
 
 
-    private ResponseEntity<?> getProfile(){
-        // TODO: 2/9/2022 Check if profile for user exists. If it exists,
-        //  return profile. Otherwise, get default values from auth server and create profile
-        return null;
+    @GetMapping("/get_profile_picture")
+    public ResponseEntity<Resource> getProfilePicture(@RequestHeader("x-auth-user-id") UUID userId){
+        Profile profile = profileService.getProfileByUserId(userId);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(profile.getProfilePictureFileType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + profile.getProfilePictureFileName() + "\"")
+                .body(new ByteArrayResource(profile.getProfilePictureFile()));
+    }
+
+    @GetMapping("/get_signature")
+    public ResponseEntity<Resource> getSignature(@RequestHeader("x-auth-user-id") UUID userId){
+        Profile profile = profileService.getProfileByUserId(userId);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(profile.getSignatureFileType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + profile.getSignatureFileName() + "\"")
+                .body(new ByteArrayResource(profile.getSignatureFile()));
+    }
+
+
+
+    @GetMapping("/get_profile")
+    private ResponseEntity<ProfileResponseModel> getProfile(@RequestHeader("x-auth-user-id") UUID userId){
+        Profile profile = profileService.getUserProfile(userId);
+        ProfileResponseModel profileResponseModel = new ProfileResponseModel(profile);
+
+        profileResponseModel.setProfilePicture("/api/v1/profiles/get_profile_picture");
+        profileResponseModel.setSignature("/api/v1/profiles/get_signature");
+
+        return ResponseEntity.ok().body(profileResponseModel);
     }
 
 

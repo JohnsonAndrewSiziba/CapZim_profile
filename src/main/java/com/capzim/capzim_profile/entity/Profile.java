@@ -1,5 +1,6 @@
 package com.capzim.capzim_profile.entity;
 
+import com.capzim.capzim_profile.types.ForeignOrLocal;
 import com.capzim.capzim_profile.types.Gender;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
@@ -73,10 +74,12 @@ public class Profile {
     @Lob
     private byte[] signatureFile;
     private String signatureFileName;
+    private String signatureFileType;
 
     @Lob
     private byte[] profilePictureFile;
     private String profilePictureFileName;
+    private String profilePictureFileType;
 
     private boolean enabled;
 
@@ -154,9 +157,6 @@ public class Profile {
 
 
 
-enum ForeignOrLocal {
-    FOREIGN,LOCAL
-}
 
 // TODO: 2/9/2022 Add this to investor management service
 //enum PrimaryOrJoint {
