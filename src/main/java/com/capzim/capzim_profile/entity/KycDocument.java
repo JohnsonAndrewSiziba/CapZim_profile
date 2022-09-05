@@ -44,7 +44,7 @@ public class KycDocument {
     @JoinColumn(name = "profile_id", referencedColumnName = "id")
     private Profile profile;
 
-    private String name;
+    private String title;
 
     private String description;
 
@@ -53,6 +53,8 @@ public class KycDocument {
     private byte[] kycFile;
 
     private String kycFileName;
+
+    private String kycFileType;
 
     private boolean readOnly = false;
 

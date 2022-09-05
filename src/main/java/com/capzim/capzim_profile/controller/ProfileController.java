@@ -2,6 +2,7 @@ package com.capzim.capzim_profile.controller;
 
 import com.capzim.capzim_profile.entity.Profile;
 import com.capzim.capzim_profile.model.EditProfileDto;
+import com.capzim.capzim_profile.model.KycDocumentRequestDto;
 import com.capzim.capzim_profile.model.ProfileResponseModel;
 import com.capzim.capzim_profile.service.ProfileService;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,7 @@ public class ProfileController {
 
     @PostMapping("/edit_profile")
     private ResponseEntity<ProfileResponseModel> editProfile(
-                @Valid @ModelAttribute EditProfileDto editProfileDto,
+                @ModelAttribute EditProfileDto editProfileDto,
                 @RequestHeader("x-auth-user-id") UUID userId,
                 @RequestHeader("Authorization") String bearerToken
             ) throws Exception {
@@ -96,11 +97,16 @@ public class ProfileController {
 
     private ResponseEntity<?> getKycDocuments(){
         // TODO: 5/9/2022 Get all of the kyc documents associated with the user
+
         return null;
     }
 
 
-    private ResponseEntity<?> addKycDocument(){
+    private ResponseEntity<?> addKycDocument(
+            @ModelAttribute KycDocumentRequestDto kycDocumentRequestDto,
+            @RequestHeader("x-auth-user-id") UUID userId
+        )
+    {
         // TODO: 5/9/2022 Add a new kyc document
         return null;
     }
