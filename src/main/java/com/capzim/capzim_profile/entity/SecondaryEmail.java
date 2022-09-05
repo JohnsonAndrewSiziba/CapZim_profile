@@ -45,6 +45,7 @@ public class SecondaryEmail {
     private Profile profile;
 
     @Email
+    @Column(unique = true)
     private String email;
 
     @Override

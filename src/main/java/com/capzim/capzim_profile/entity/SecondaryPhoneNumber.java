@@ -1,5 +1,6 @@
 package com.capzim.capzim_profile.entity;
 
+import com.capzim.capzim_profile.validator.ValidMobileNumber;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import org.hibernate.Hibernate;
@@ -44,6 +45,9 @@ public class SecondaryPhoneNumber {
     private Profile profile;
 
     // TODO: 2/9/2022 Add phone number validator
+
+    @ValidMobileNumber
+    @Column(unique = true)
     private String phoneNumber;
 
     @Override
