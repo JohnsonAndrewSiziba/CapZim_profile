@@ -44,12 +44,14 @@ public class IdDocument {
     private Profile profile;
 
     @Lob
-    private String idFile;
+    private byte[] idFile;
     private String idFileName;
 
     private boolean readOnly = false;
 
     private boolean verified = false;
+
+    private UUID verifiedBy;
 
     @Override
     public boolean equals(Object o) {

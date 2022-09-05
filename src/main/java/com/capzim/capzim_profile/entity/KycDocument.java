@@ -55,6 +55,8 @@ public class KycDocument {
 
     private boolean verified = false;
 
+    private UUID verifiedBy;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
