@@ -23,7 +23,7 @@ import java.util.UUID;
 @ToString
 @RequiredArgsConstructor
 @AllArgsConstructor
-public class KycDocument {
+public class IdDocument {
     @Id
     @GeneratedValue
     @Type(type="org.hibernate.type.UUIDCharType")
@@ -43,13 +43,9 @@ public class KycDocument {
     @JoinColumn(name = "profile_id", referencedColumnName = "id")
     private Profile profile;
 
-    private String name;
-
-    private String description;
-
     @Lob
-    private byte[] kycFile;
-    private String kycFileName;
+    private String idFile;
+    private String idFileName;
 
     private boolean readOnly = false;
 
@@ -59,7 +55,7 @@ public class KycDocument {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        KycDocument that = (KycDocument) o;
+        IdDocument that = (IdDocument) o;
         return id != null && Objects.equals(id, that.id);
     }
 

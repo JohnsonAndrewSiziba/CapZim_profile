@@ -61,15 +61,11 @@ public class Profile {
 //    private PrimaryOrJoint primaryOrJoint = PrimaryOrJoint.PRIMARY;
 
     @Lob
-    private String signatureFile;
+    private byte[] signatureFile;
     private String signatureFileName;
 
     @Lob
-    private String idFile;
-    private String idFileName;
-
-    @Lob
-    private String profilePictureFile;
+    private byte[] profilePictureFile;
     private String profilePictureFileName;
 
     private boolean enabled;
