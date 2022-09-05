@@ -9,6 +9,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
@@ -46,6 +47,7 @@ public class SecondaryPhoneNumber {
 
     // TODO: 2/9/2022 Add phone number validator
 
+    @NotBlank(message = "Mobile Number is Mandatory")
     @ValidMobileNumber
     @Column(unique = true)
     private String phoneNumber;

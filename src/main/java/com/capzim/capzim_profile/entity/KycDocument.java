@@ -8,6 +8,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
@@ -47,8 +48,10 @@ public class KycDocument {
 
     private String description;
 
+    @NotBlank(message = "File is mandatory")
     @Lob
     private byte[] kycFile;
+
     private String kycFileName;
 
     private boolean readOnly = false;

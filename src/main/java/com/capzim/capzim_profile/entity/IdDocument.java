@@ -8,6 +8,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
@@ -24,7 +25,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class IdDocument {
-    
+
     @Id
     @GeneratedValue
     @Type(type="org.hibernate.type.UUIDCharType")
@@ -45,6 +46,7 @@ public class IdDocument {
     private Profile profile;
 
     @Lob
+    @NotBlank(message = "File is mandatory")
     private byte[] idFile;
     private String idFileName;
 

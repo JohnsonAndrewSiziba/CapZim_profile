@@ -8,6 +8,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -34,32 +35,39 @@ public class Profile {
     @Column(unique = true)
     private UUID userId;
 
+    @NotBlank(message = "Date of Birth is Mandatory")
     private Date dateOfBirth;
 
+    @NotBlank(message = "Gender is Mandatory")
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
+    @NotBlank(message = "Foreign/Local is Mandatory")
     @Enumerated(EnumType.STRING)
     private ForeignOrLocal foreignOrLocal;
 
-    private String nationalId;
+    @NotBlank(message = "National Id Number is Mandatory")
+    private String nationalIdNumber;
 
     private String passportNumber;
 
+    @NotBlank(message = "Address Line 1 is Mandatory")
     private String addressLine1;
 
     private String addressLine2;
 
+    @NotBlank(message = "City is Mandatory")
     private String city;
 
+    @NotBlank(message = "Country of Residence is Mandatory")
     private String country;
 
-    private String cellphoneNumber;
 
     // TODO: 2/9/2022 Add this in investor management service
 //    @Enumerated(EnumType.STRING)
 //    private PrimaryOrJoint primaryOrJoint = PrimaryOrJoint.PRIMARY;
 
+    @NotBlank(message = "Signature is Mandatory")
     @Lob
     private byte[] signatureFile;
     private String signatureFileName;
