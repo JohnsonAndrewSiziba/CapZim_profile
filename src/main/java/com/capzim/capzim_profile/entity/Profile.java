@@ -60,11 +60,17 @@ public class Profile {
 //    @Enumerated(EnumType.STRING)
 //    private PrimaryOrJoint primaryOrJoint = PrimaryOrJoint.PRIMARY;
 
-    private String pathToSignature;
+    @Lob
+    private String signatureFile;
+    private String signatureFileName;
 
-    private String pathToIdDocument;
+    @Lob
+    private String idFile;
+    private String idFileName;
 
-    private String pathToProfilePicture;
+    @Lob
+    private String profilePictureFile;
+    private String profilePictureFileName;
 
     private boolean enabled;
 
