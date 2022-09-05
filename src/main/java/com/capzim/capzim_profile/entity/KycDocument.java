@@ -47,7 +47,9 @@ public class KycDocument {
 
     private String description;
 
-    private String documentPath;
+    @Lob
+    private String kycFile;
+    private String kycFileName;
 
     @Override
     public boolean equals(Object o) {
