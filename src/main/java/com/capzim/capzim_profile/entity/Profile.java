@@ -1,5 +1,6 @@
 package com.capzim.capzim_profile.entity;
 
+import com.capzim.capzim_profile.types.Gender;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import org.hibernate.Hibernate;
@@ -33,6 +34,7 @@ public class Profile {
     private UUID id;
 
     @Column(unique = true)
+    @Type(type="org.hibernate.type.UUIDCharType")
     private UUID userId;
 
     @NotBlank(message = "Date of Birth is Mandatory")
@@ -151,9 +153,6 @@ public class Profile {
 }
 
 
-enum Gender {
-    MALE,FEMALE
-}
 
 enum ForeignOrLocal {
     FOREIGN,LOCAL

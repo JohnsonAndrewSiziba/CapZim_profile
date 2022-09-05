@@ -45,8 +45,6 @@ public class SecondaryPhoneNumber {
     @JoinColumn(name = "profile_id", referencedColumnName = "id")
     private Profile profile;
 
-    // TODO: 2/9/2022 Add phone number validator
-
     @NotBlank(message = "Mobile Number is Mandatory")
     @ValidMobileNumber
     @Column(unique = true)

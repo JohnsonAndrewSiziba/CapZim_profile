@@ -1,12 +1,15 @@
 package com.capzim.capzim_profile.controller;
 
 import com.capzim.capzim_profile.entity.Profile;
+import com.capzim.capzim_profile.model.ProfileDto;
 import com.capzim.capzim_profile.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.UUID;
 
 /**
  * @author Johnson Andrew Siziba (sizibajohnsona@gmail.com,+263784310119)
@@ -19,11 +22,23 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/profiles")
 public class ProfileController {
+
     private final ProfileService profileService;
 
 
-    private ResponseEntity<?> editProfile(Profile profile){
-        // TODO: 2/9/2022  Edit profile with the provided details
+    @PostMapping("/edit_profile/{profileId}")
+    private ResponseEntity<?> editProfile(
+                @Valid @ModelAttribute Profile profile,
+                @PathVariable("profileId") String profileId,
+                @RequestHeader("x-auth-user-id") UUID userId,
+                @RequestHeader("Authorization") String bearerToken
+            )
+    {
+        profileService.createProfileIfNotExist(bearerToken, userId);
+
+        // TODO: 5/9/2022 Check if the user has permission to edit the profile
+        // TODO: 5/9/2022 Get the user ID from headers
+
         return  null;
     }
 
