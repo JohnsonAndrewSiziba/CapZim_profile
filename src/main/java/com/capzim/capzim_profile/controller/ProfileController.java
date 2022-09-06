@@ -4,7 +4,9 @@ import com.capzim.capzim_profile.entity.*;
 import com.capzim.capzim_profile.model.*;
 import com.capzim.capzim_profile.service.KycDocumentService;
 import com.capzim.capzim_profile.service.ProfileService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
@@ -39,11 +41,15 @@ public class ProfileController {
 
 
     @PostMapping("/edit_profile")
+    @Operation(summary = "Edit Profile")
     public ResponseEntity<ProfileResponseModel> editProfile(
                 @ModelAttribute EditProfileDto editProfileDto,
                 @RequestHeader("x-auth-user-id") UUID userId,
                 @RequestHeader("Authorization") String bearerToken
             ) throws Exception {
+
+        log.info("Inside editProfile of ProfileController");
+
         Profile profile = profileService.updateProfile(userId, editProfileDto);
 
         ProfileResponseModel profileResponseModel = new ProfileResponseModel(profile);
@@ -65,8 +71,11 @@ public class ProfileController {
     }
 
 
-    @GetMapping("/get_profile_picture")
+    @GetMapping("/profile_picture/download")
+    @Operation(summary = "Download Profile Picture")
     public ResponseEntity<Resource> getProfilePicture(@RequestHeader("x-auth-user-id") UUID userId){
+        log.info("Inside getProfilePicture of ProfileController");
+
         Profile profile = profileService.getProfileByUserId(userId);
 
         return ResponseEntity.ok()
@@ -76,8 +85,11 @@ public class ProfileController {
     }
 
 
-    @GetMapping("/get_signature")
+    @GetMapping("/signature/download")
+    @Operation(summary = "Download Signature")
     public ResponseEntity<Resource> getSignature(@RequestHeader("x-auth-user-id") UUID userId){
+        log.info("Inside getSignature of ProfileController");
+
         Profile profile = profileService.getProfileByUserId(userId);
 
         return ResponseEntity.ok()
@@ -88,7 +100,10 @@ public class ProfileController {
 
 
     @GetMapping("/get_profile")
+    @Operation(summary = "Get Profile Details")
     public ResponseEntity<ProfileResponseModel> getProfile(@RequestHeader("x-auth-user-id") UUID userId){
+        log.info("Inside getProfile of ProfileController");
+
         Profile profile = profileService.getProfileByUserId(userId);
         ProfileResponseModel profileResponseModel = new ProfileResponseModel(profile);
 
@@ -100,19 +115,25 @@ public class ProfileController {
 
 
     @GetMapping("/kyc_documents/index")
+    @Operation(summary = "Get All Kyc Documents")
     public ResponseEntity<List<KycDocumentResponseModel>> getKycDocuments(
             @RequestHeader("x-auth-user-id") UUID userId
     )
     {
+        log.info("Inside getKycDocuments of ProfileController");
+
         return ResponseEntity.ok().body(profileService.getAllUserKycDocuments(userId));
     }
 
 
     @GetMapping("/kyc_documents/{documentId}/download")
+    @Operation(summary = "Download Kyc Document")
     public ResponseEntity<Resource> downloadKycDocument(
             @PathVariable("documentId") UUID documentId,
             @RequestHeader("x-auth-user-id") UUID userId
         ){
+        log.info("Inside downloadKycDocument of ProfileController");
+
         KycDocument kycDocument = kycDocumentService.getKycDocumentById(documentId);
 
         if (kycDocument == null){
@@ -133,20 +154,26 @@ public class ProfileController {
 
 
     @PostMapping("/save_kyc_document")
+    @Operation(summary = "Save KYC Document")
     public ResponseEntity<KycDocumentResponseModel> addKycDocument(
             @ModelAttribute KycDocumentRequestDto kycDocumentRequestDto,
             @RequestHeader("x-auth-user-id") UUID userId
         ) throws Exception {
+        log.info("Inside addKycDocument of ProfileController");
+
         KycDocument kycDocument = profileService.addKycDocument(userId, kycDocumentRequestDto);
         return ResponseEntity.ok().body(new KycDocumentResponseModel(kycDocument));
     }
 
 
     @PostMapping("/profile_picture/update")
+    @Operation(summary = "Update Profile Picture")
     public ResponseEntity<ProfilePictureResponseModel> changeProfilePicture(
             @ModelAttribute ProfilePictureDto profilePictureDto,
             @RequestHeader("x-auth-user-id") UUID userId
         ) throws Exception {
+            log.info("Inside changeProfilePicture of ProfileController");
+
             Profile profile = profileService.updateProfilePicture(profilePictureDto, userId);
             ProfilePictureResponseModel profilePictureResponseModel = new ProfilePictureResponseModel(profile);
 
@@ -155,34 +182,42 @@ public class ProfileController {
 
 
     @GetMapping("/profile_picture/download")
+    @Operation(summary = "Download Profile Picture")
     public ResponseEntity<Resource> downloadProfilePicture(@RequestHeader("x-auth-user-id") UUID userId) {
-            Profile profile = profileService.getProfileByUserId(userId);
+        log.info("Inside downloadProfilePicture of ProfileController");
 
-            if (profile.getProfilePictureFile() == null){
-                return ResponseEntity.notFound().build();
-            }
+        Profile profile = profileService.getProfileByUserId(userId);
 
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(profile.getProfilePictureFileType()))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + profile.getProfilePictureFileName() + "\"")
-                    .body(new ByteArrayResource(profile.getProfilePictureFile()));
+        if (profile.getProfilePictureFile() == null){
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(profile.getProfilePictureFileType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + profile.getProfilePictureFileName() + "\"")
+                .body(new ByteArrayResource(profile.getProfilePictureFile()));
     }
 
 
     @PostMapping("/add_secondary_phone_number")
+    @Operation(summary = "Add Secondary Phone Number")
     public ResponseEntity<String> addSecondaryPhoneNumber(
             @Valid @RequestBody TempPhoneNumber tempPhoneNumber,
             @RequestHeader("x-auth-user-id") UUID userId,
             @RequestHeader("Authorization") String bearerToken
         )
     {
+        log.info("Inside addSecondaryPhoneNumber of ProfileController");
+
         profileService.addSaveTempSecondaryPhoneNumberAndSendToken(tempPhoneNumber, userId, bearerToken);
         return ResponseEntity.ok().body("Verification Token Sent");
     }
 
 
     @PostMapping("/verify_secondary_phone_number_verification_token")
+    @Operation(summary = "Verify Secondary Phone Number")
     public ResponseEntity<String> verifySecondaryPhoneNumberToken(@RequestBody VerificationTokenModel verificationTokenModel, @RequestHeader("x-auth-user-id") UUID userId){
+        log.info("Inside verifySecondaryPhoneNumberToken of ProfileController");
 
         boolean isTokenVerified = profileService.verifySecondaryPhoneNumberToken(verificationTokenModel, userId);
 
@@ -191,18 +226,23 @@ public class ProfileController {
 
 
     @PostMapping("/add_secondary_email_address")
+    @Operation(summary = "Add Secondary Email Address")
     public ResponseEntity<String> addSecondaryEmail(
             @Valid @RequestBody TempEmailAddress tempEmailAddress,
             @RequestHeader("x-auth-user-id") UUID userId,
             @RequestHeader("Authorization") String bearerToken
         ){
+        log.info("Inside addSecondaryEmail of ProfileController");
         profileService.addSaveTempSecondaryEmailAndSendToken(tempEmailAddress, userId, bearerToken);
         return ResponseEntity.ok().body("Verification Token Sent");
     }
 
 
     @PostMapping("/verify_secondary_email_address_verification_token")
+    @Operation(summary = "Verify Secondary Email Address")
     public ResponseEntity<String> verifySecondaryEmailToken(@RequestBody VerificationTokenModel verificationTokenModel, @RequestHeader("x-auth-user-id") UUID userId){
+        log.info("Inside verifySecondaryEmailToken of ProfileController");
+
         boolean isTokenVerified = profileService.verifySecondaryEmailAddressToken(verificationTokenModel, userId);
 
         return isTokenVerified ? ResponseEntity.ok().body("Email address has been verified") : ResponseEntity.badRequest().build();
@@ -210,17 +250,23 @@ public class ProfileController {
 
 
     @PostMapping("/add_id_document")
+    @Operation(summary = "Add ID Document")
     public ResponseEntity<IdDocumentResponseModel> addIdDocument(
             @ModelAttribute IdDocumentDto idDocumentDto,
             @RequestHeader("x-auth-user-id") UUID userId
     ) throws Exception {
+        log.info("Inside addIdDocument of ProfileController");
+
         IdDocument idDocument = profileService.addIdDocument(idDocumentDto, userId);
         return ResponseEntity.ok().body(new IdDocumentResponseModel(idDocument));
     }
 
 
     @GetMapping("/id_document/download")
+    @Operation(summary = "Download ID Document")
     public ResponseEntity<Resource> downloadIdDocument(@RequestHeader("x-auth-user-id") UUID userId){
+
+        log.info("Inside downloadIdDocument of ProfileController");
 
         Profile profile = profileService.getProfileByUserId(userId);
 
