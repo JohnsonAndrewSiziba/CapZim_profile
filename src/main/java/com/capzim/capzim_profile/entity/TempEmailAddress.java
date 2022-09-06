@@ -10,6 +10,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.validation.constraints.Email;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -26,7 +27,7 @@ import java.util.UUID;
 @ToString
 @RequiredArgsConstructor
 @AllArgsConstructor
-public class TempPhoneNumber {
+public class TempEmailAddress {
     @Id
     @GeneratedValue
     @Type(type="org.hibernate.type.UUIDCharType")
@@ -35,8 +36,9 @@ public class TempPhoneNumber {
     @Type(type="org.hibernate.type.UUIDCharType")
     private UUID userId;
 
-    @ValidMobileNumber
-    private String phoneNumber;
+    @Email(message = "Email address is not valid")
+    @Column(nullable = false)
+    private String email;
 
     private String token = RandomString.make(9);
 
@@ -44,7 +46,7 @@ public class TempPhoneNumber {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        TempPhoneNumber that = (TempPhoneNumber) o;
+        TempEmailAddress that = (TempEmailAddress) o;
         return id != null && Objects.equals(id, that.id);
     }
 

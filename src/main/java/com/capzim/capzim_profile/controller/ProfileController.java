@@ -2,6 +2,8 @@ package com.capzim.capzim_profile.controller;
 
 import com.capzim.capzim_profile.entity.KycDocument;
 import com.capzim.capzim_profile.entity.Profile;
+import com.capzim.capzim_profile.entity.TempEmailAddress;
+import com.capzim.capzim_profile.entity.TempPhoneNumber;
 import com.capzim.capzim_profile.model.*;
 import com.capzim.capzim_profile.service.KycDocumentService;
 import com.capzim.capzim_profile.service.ProfileService;
@@ -9,13 +11,19 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.core.io.Resource;
 
+import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -162,43 +170,46 @@ public class ProfileController {
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + profile.getProfilePictureFileName() + "\"")
                     .body(new ByteArrayResource(profile.getProfilePictureFile()));
 
-        }
-
-
-    private ResponseEntity<?> addSecondaryPhoneNumber(){
-        // TODO: 5/9/2022 Save the provided number and send verification token to the number
-        // TODO: 5/9/2022 Save to temp phone numbers table / or to the SecondaryPhone Number table (I don't know).
-        return null;
     }
 
 
-    private ResponseEntity<?> resendSecondaryPhoneNumberToken(){
-        // TODO: 5/9/2022 Send token to the previously saved number in addSecondaryPhoneNumber method above.
-        return null;
+    @PostMapping("/add_secondary_phone_number")
+    private ResponseEntity<String> addSecondaryPhoneNumber(
+            @Valid @RequestBody TempPhoneNumber tempPhoneNumber,
+            @RequestHeader("x-auth-user-id") UUID userId,
+            @RequestHeader("Authorization") String bearerToken
+        )
+    {
+        profileService.addSaveTempSecondaryPhoneNumberAndSendToken(tempPhoneNumber, userId, bearerToken);
+        return ResponseEntity.ok().body("Verification Token Sent");
     }
 
 
-    private ResponseEntity<?> verifySecondaryPhoneNumberToken(){
-        // TODO: 5/9/2022 Verify the provided token and, if valid, save secondary phone number.
-        return null;
-    }
+    @PostMapping("/verify_secondary_phone_number_verification_token")
+    private ResponseEntity<String> verifySecondaryPhoneNumberToken(@RequestBody VerificationTokenModel verificationTokenModel, @RequestHeader("x-auth-user-id") UUID userId){
 
-    
-    private ResponseEntity<?> addSecondaryEmail(){
-        // TODO: 5/9/2022 Same with phone number
-        return null;
+        boolean isTokenVerified = profileService.verifySecondaryPhoneNumberToken(verificationTokenModel, userId);
+
+        return isTokenVerified ? ResponseEntity.ok().body("Phone number has been verified") : ResponseEntity.badRequest().build();
     }
 
 
-    private ResponseEntity<?> resendSecondaryEmailToken(){
-        // TODO: 5/9/2022 Same with phone number
-        return null;
+    @PostMapping("/add_secondary_email_address")
+    private ResponseEntity<String> addSecondaryEmail(
+            @Valid @RequestBody TempEmailAddress tempEmailAddress,
+            @RequestHeader("x-auth-user-id") UUID userId,
+            @RequestHeader("Authorization") String bearerToken
+        ){
+        profileService.addSaveTempSecondaryEmailAndSendToken(tempEmailAddress, userId, bearerToken);
+        return ResponseEntity.ok().body("Verification Token Sent");
     }
 
 
-    private ResponseEntity<?> verifySecondaryEmailToken(){
-        // TODO: 5/9/2022 Same with phone number
-        return null;
+    @PostMapping("/verify_secondary_email_address_verification_token")
+    private ResponseEntity<String> verifySecondaryEmailToken(@RequestBody VerificationTokenModel verificationTokenModel, @RequestHeader("x-auth-user-id") UUID userId){
+        boolean isTokenVerified = profileService.verifySecondaryEmailAddressToken(verificationTokenModel, userId);
+
+        return isTokenVerified ? ResponseEntity.ok().body("Email address has been verified") : ResponseEntity.badRequest().build();
     }
 
     private ResponseEntity<?> addIdDocument(){
@@ -209,6 +220,18 @@ public class ProfileController {
     private ResponseEntity<?> removeIdDocument(){
         // TODO: 5/9/2022 Save Id document
         return null;
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return errors;
     }
 
 }
