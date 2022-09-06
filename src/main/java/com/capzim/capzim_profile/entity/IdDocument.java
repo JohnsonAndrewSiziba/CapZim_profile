@@ -37,7 +37,7 @@ public class IdDocument {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @ManyToOne(
+    @OneToOne(
             fetch = FetchType.EAGER,
             optional = false
     )

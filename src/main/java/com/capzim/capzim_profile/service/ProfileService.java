@@ -271,6 +271,7 @@ public class ProfileService {
         return true;
     }
 
+    @Async
     public void addSaveTempSecondaryEmailAndSendToken(TempEmailAddress tempEmailAddress, UUID userId, String bearerToken) {
         this.deleteTempEmailIfExist(userId);
         tempEmailAddress.setUserId(userId);

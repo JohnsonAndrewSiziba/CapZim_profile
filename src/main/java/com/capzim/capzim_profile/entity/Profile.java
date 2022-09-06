@@ -124,7 +124,7 @@ public class Profile {
     private List<SecondaryEmail> secondaryEmails;
 
 
-    @OneToMany(
+    @OneToOne(
             mappedBy = "profile",
             fetch = FetchType.LAZY,
             orphanRemoval = true,
@@ -132,7 +132,7 @@ public class Profile {
     )
     @JsonIgnoreProperties("profile")
     @ToString.Exclude
-    private List<IdDocument> idDocuments;
+    private IdDocument idDocuments;
 
 
     @CreationTimestamp

@@ -37,13 +37,12 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/profiles")
 public class ProfileController {
-
     private final ProfileService profileService;
     private final KycDocumentService kycDocumentService;
 
 
     @PostMapping("/edit_profile")
-    private ResponseEntity<ProfileResponseModel> editProfile(
+    public ResponseEntity<ProfileResponseModel> editProfile(
                 @ModelAttribute EditProfileDto editProfileDto,
                 @RequestHeader("x-auth-user-id") UUID userId,
                 @RequestHeader("Authorization") String bearerToken
@@ -79,6 +78,7 @@ public class ProfileController {
                 .body(new ByteArrayResource(profile.getProfilePictureFile()));
     }
 
+
     @GetMapping("/get_signature")
     public ResponseEntity<Resource> getSignature(@RequestHeader("x-auth-user-id") UUID userId){
         Profile profile = profileService.getProfileByUserId(userId);
@@ -90,9 +90,8 @@ public class ProfileController {
     }
 
 
-
     @GetMapping("/get_profile")
-    private ResponseEntity<ProfileResponseModel> getProfile(@RequestHeader("x-auth-user-id") UUID userId){
+    public ResponseEntity<ProfileResponseModel> getProfile(@RequestHeader("x-auth-user-id") UUID userId){
         Profile profile = profileService.getProfileByUserId(userId);
         ProfileResponseModel profileResponseModel = new ProfileResponseModel(profile);
 
@@ -104,15 +103,16 @@ public class ProfileController {
 
 
     @GetMapping("/kyc_documents/index")
-    private ResponseEntity<List<KycDocumentResponseModel>> getKycDocuments(
+    public ResponseEntity<List<KycDocumentResponseModel>> getKycDocuments(
             @RequestHeader("x-auth-user-id") UUID userId
-    ){
+    )
+    {
         return ResponseEntity.ok().body(profileService.getAllUserKycDocuments(userId));
     }
 
 
     @GetMapping("/kyc_documents/{documentId}/download")
-    private ResponseEntity<Resource> downloadKycDocument(
+    public ResponseEntity<Resource> downloadKycDocument(
             @PathVariable("documentId") UUID documentId,
             @RequestHeader("x-auth-user-id") UUID userId
         ){
@@ -132,11 +132,11 @@ public class ProfileController {
                 .contentType(MediaType.parseMediaType(kycDocument.getKycFileType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + kycDocument.getKycFileName() + "\"")
                 .body(new ByteArrayResource(kycDocument.getKycFile()));
-
     }
 
+
     @PostMapping("/save_kyc_document")
-    private ResponseEntity<KycDocumentResponseModel> addKycDocument(
+    public ResponseEntity<KycDocumentResponseModel> addKycDocument(
             @ModelAttribute KycDocumentRequestDto kycDocumentRequestDto,
             @RequestHeader("x-auth-user-id") UUID userId
         ) throws Exception {
@@ -169,12 +169,11 @@ public class ProfileController {
                     .contentType(MediaType.parseMediaType(profile.getProfilePictureFileType()))
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + profile.getProfilePictureFileName() + "\"")
                     .body(new ByteArrayResource(profile.getProfilePictureFile()));
-
     }
 
 
     @PostMapping("/add_secondary_phone_number")
-    private ResponseEntity<String> addSecondaryPhoneNumber(
+    public ResponseEntity<String> addSecondaryPhoneNumber(
             @Valid @RequestBody TempPhoneNumber tempPhoneNumber,
             @RequestHeader("x-auth-user-id") UUID userId,
             @RequestHeader("Authorization") String bearerToken
@@ -186,7 +185,7 @@ public class ProfileController {
 
 
     @PostMapping("/verify_secondary_phone_number_verification_token")
-    private ResponseEntity<String> verifySecondaryPhoneNumberToken(@RequestBody VerificationTokenModel verificationTokenModel, @RequestHeader("x-auth-user-id") UUID userId){
+    public ResponseEntity<String> verifySecondaryPhoneNumberToken(@RequestBody VerificationTokenModel verificationTokenModel, @RequestHeader("x-auth-user-id") UUID userId){
 
         boolean isTokenVerified = profileService.verifySecondaryPhoneNumberToken(verificationTokenModel, userId);
 
@@ -195,7 +194,7 @@ public class ProfileController {
 
 
     @PostMapping("/add_secondary_email_address")
-    private ResponseEntity<String> addSecondaryEmail(
+    public ResponseEntity<String> addSecondaryEmail(
             @Valid @RequestBody TempEmailAddress tempEmailAddress,
             @RequestHeader("x-auth-user-id") UUID userId,
             @RequestHeader("Authorization") String bearerToken
@@ -206,21 +205,28 @@ public class ProfileController {
 
 
     @PostMapping("/verify_secondary_email_address_verification_token")
-    private ResponseEntity<String> verifySecondaryEmailToken(@RequestBody VerificationTokenModel verificationTokenModel, @RequestHeader("x-auth-user-id") UUID userId){
+    public ResponseEntity<String> verifySecondaryEmailToken(@RequestBody VerificationTokenModel verificationTokenModel, @RequestHeader("x-auth-user-id") UUID userId){
         boolean isTokenVerified = profileService.verifySecondaryEmailAddressToken(verificationTokenModel, userId);
 
         return isTokenVerified ? ResponseEntity.ok().body("Email address has been verified") : ResponseEntity.badRequest().build();
     }
 
-    private ResponseEntity<?> addIdDocument(){
-        // TODO: 5/9/2022 Save Id document
+
+    @PostMapping("/add_id_document")
+    public ResponseEntity<?> addIdDocument(
+            @ModelAttribute ProfilePictureDto profilePictureDto,
+            @RequestHeader("x-auth-user-id") UUID userId
+    ) {
+
         return null;
     }
 
-    private ResponseEntity<?> removeIdDocument(){
-        // TODO: 5/9/2022 Save Id document
+
+    @GetMapping("/id_document/download")
+    public ResponseEntity<Resource> downloadIdDocument(@RequestHeader("x-auth-user-id") UUID userId){
         return null;
     }
+
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
