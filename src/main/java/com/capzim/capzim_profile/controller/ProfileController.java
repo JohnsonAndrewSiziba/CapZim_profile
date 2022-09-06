@@ -1,9 +1,6 @@
 package com.capzim.capzim_profile.controller;
 
-import com.capzim.capzim_profile.entity.KycDocument;
-import com.capzim.capzim_profile.entity.Profile;
-import com.capzim.capzim_profile.entity.TempEmailAddress;
-import com.capzim.capzim_profile.entity.TempPhoneNumber;
+import com.capzim.capzim_profile.entity.*;
 import com.capzim.capzim_profile.model.*;
 import com.capzim.capzim_profile.service.KycDocumentService;
 import com.capzim.capzim_profile.service.ProfileService;
@@ -213,18 +210,30 @@ public class ProfileController {
 
 
     @PostMapping("/add_id_document")
-    public ResponseEntity<?> addIdDocument(
-            @ModelAttribute ProfilePictureDto profilePictureDto,
+    public ResponseEntity<IdDocumentResponseModel> addIdDocument(
+            @ModelAttribute IdDocumentDto idDocumentDto,
             @RequestHeader("x-auth-user-id") UUID userId
-    ) {
-
-        return null;
+    ) throws Exception {
+        IdDocument idDocument = profileService.addIdDocument(idDocumentDto, userId);
+        return ResponseEntity.ok().body(new IdDocumentResponseModel(idDocument));
     }
 
 
     @GetMapping("/id_document/download")
     public ResponseEntity<Resource> downloadIdDocument(@RequestHeader("x-auth-user-id") UUID userId){
-        return null;
+
+        Profile profile = profileService.getProfileByUserId(userId);
+
+        IdDocument idDocument = profile.getIdDocument();
+
+        if (idDocument == null){
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(idDocument.getFileType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + idDocument.getIdFileName() + "\"")
+                .body(new ByteArrayResource(idDocument.getIdFile()));
     }
 
 

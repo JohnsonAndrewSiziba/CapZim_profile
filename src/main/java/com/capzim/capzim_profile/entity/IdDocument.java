@@ -50,6 +50,8 @@ public class IdDocument {
     private byte[] idFile;
     private String idFileName;
 
+    private String fileType;
+
     private boolean readOnly = false;
 
     private boolean verified = false;

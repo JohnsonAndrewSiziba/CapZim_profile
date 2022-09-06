@@ -43,6 +43,8 @@ public class ProfileService {
 
     private final SecondaryEmailRepository secondaryEmailRepository;
 
+    private final IdDocumentRepository idDocumentRepository;
+
     public void createProfileIfNotExist(UUID userId) {
 
         Profile profile = profileRepository.findProfileByUserId(userId);
@@ -301,5 +303,44 @@ public class ProfileService {
         tempEmailAddressRepository.delete(tempEmailAddress);
 
         return true;
+    }
+
+    public IdDocument addIdDocument(IdDocumentDto idDocumentDto, UUID userId) throws Exception {
+        Profile profile = this.getProfileByUserId(userId);
+        IdDocument idDocument = profile.getIdDocument();
+        if (idDocument == null){
+            idDocument = new IdDocument();
+            idDocument.setProfile(profile);
+            idDocument = this.saveIdDocument(idDocument, idDocumentDto);
+        }
+        else {
+            if (!idDocument.isReadOnly()){
+                idDocument = this.saveIdDocument(idDocument, idDocumentDto);
+            }
+        }
+        return idDocument;
+    }
+
+    private IdDocument saveIdDocument(IdDocument idDocument, IdDocumentDto idDocumentDto) throws Exception {
+
+        String fileName = StringUtils.cleanPath(Objects.requireNonNull(idDocumentDto.getFile().getOriginalFilename()));
+
+        try {
+
+            if (fileName.contains("..")) {
+                throw new Exception("Filename contains invalid path sequence: " + fileName);
+            }
+
+            idDocument.setIdFile(idDocumentDto.getFile().getBytes());
+            idDocument.setIdFileName(fileName);
+            idDocument.setFileType(idDocumentDto.getFile().getContentType());
+
+            return idDocumentRepository.save(idDocument);
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new Exception("Could not save kyc document file: " + fileName);
+        }
+
     }
 }

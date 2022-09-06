@@ -23,6 +23,8 @@ public class IdDocumentResponseModel {
     private String downloadPath;
 
     public IdDocumentResponseModel(IdDocument idDocument){
-
+        this.fileType = idDocument.getFileType();
+        this.fileName = idDocument.getIdFileName();
+        this.downloadPath = "/api/v1/profiles/id_document/download";
     }
 }
