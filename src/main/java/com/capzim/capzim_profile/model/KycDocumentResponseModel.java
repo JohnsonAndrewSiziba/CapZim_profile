@@ -42,6 +42,6 @@ public class KycDocumentResponseModel {
         this.readOnly = kycDocument.isReadOnly();
         this.verified = kycDocument.isVerified();
         this.comment = kycDocument.getComment();
-        this.kycDocument = "/api/v1/profiles/get_kyc_document/" + kycDocument.getId();
+        this.kycDocument = "/api/v1/profiles/kyc_document/" + kycDocument.getId() + "/download";
     }
 }

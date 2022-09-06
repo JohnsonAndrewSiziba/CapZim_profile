@@ -2,10 +2,8 @@ package com.capzim.capzim_profile.controller;
 
 import com.capzim.capzim_profile.entity.KycDocument;
 import com.capzim.capzim_profile.entity.Profile;
-import com.capzim.capzim_profile.model.EditProfileDto;
-import com.capzim.capzim_profile.model.KycDocumentRequestDto;
-import com.capzim.capzim_profile.model.KycDocumentResponseModel;
-import com.capzim.capzim_profile.model.ProfileResponseModel;
+import com.capzim.capzim_profile.model.*;
+import com.capzim.capzim_profile.service.KycDocumentService;
 import com.capzim.capzim_profile.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.core.io.Resource;
 
-
-import javax.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -34,6 +31,7 @@ import java.util.UUID;
 public class ProfileController {
 
     private final ProfileService profileService;
+    private final KycDocumentService kycDocumentService;
 
 
     @PostMapping("/edit_profile")
@@ -97,12 +95,37 @@ public class ProfileController {
     }
 
 
-    private ResponseEntity<?> getKycDocuments(){
-        // TODO: 5/9/2022 Get all of the kyc documents associated with the user
-
-        return null;
+    @GetMapping("/kyc_documents/index")
+    private ResponseEntity<List<KycDocumentResponseModel>> getKycDocuments(
+            @RequestHeader("x-auth-user-id") UUID userId
+    ){
+        return ResponseEntity.ok().body(profileService.getAllUserKycDocuments(userId));
     }
 
+
+    @GetMapping("/kyc_documents/{documentId}/download")
+    private ResponseEntity<Resource> downloadKycDocument(
+            @PathVariable("documentId") UUID documentId,
+            @RequestHeader("x-auth-user-id") UUID userId
+        ){
+        KycDocument kycDocument = kycDocumentService.getKycDocumentById(documentId);
+
+        if (kycDocument == null){
+            return ResponseEntity.notFound().build();
+        }
+
+        Profile profile = profileService.getProfileByUserId(userId);
+
+        if (kycDocument.getProfile() != profile){
+            return ResponseEntity.badRequest().build();
+        }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(kycDocument.getKycFileType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + kycDocument.getKycFileName() + "\"")
+                .body(new ByteArrayResource(kycDocument.getKycFile()));
+
+    }
 
     @PostMapping("/save_kyc_document")
     private ResponseEntity<KycDocumentResponseModel> addKycDocument(
@@ -114,10 +137,32 @@ public class ProfileController {
     }
 
 
-    private ResponseEntity<?> changeProfilePicture(){
-        // TODO: 5/9/2022 replace the existing profile picture with the new one. Size and dimensions limits/constraints
-        return null;
+    @PostMapping("/profile_picture/update")
+    public ResponseEntity<ProfilePictureResponseModel> changeProfilePicture(
+            @ModelAttribute ProfilePictureDto profilePictureDto,
+            @RequestHeader("x-auth-user-id") UUID userId
+        ) throws Exception {
+            Profile profile = profileService.updateProfilePicture(profilePictureDto, userId);
+            ProfilePictureResponseModel profilePictureResponseModel = new ProfilePictureResponseModel(profile);
+
+        return ResponseEntity.ok().body(profilePictureResponseModel);
     }
+
+
+    @GetMapping("/profile_picture/download")
+    public ResponseEntity<Resource> downloadProfilePicture(@RequestHeader("x-auth-user-id") UUID userId) {
+            Profile profile = profileService.getProfileByUserId(userId);
+
+            if (profile.getProfilePictureFile() == null){
+                return ResponseEntity.notFound().build();
+            }
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(profile.getProfilePictureFileType()))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + profile.getProfilePictureFileName() + "\"")
+                    .body(new ByteArrayResource(profile.getProfilePictureFile()));
+
+        }
 
 
     private ResponseEntity<?> addSecondaryPhoneNumber(){

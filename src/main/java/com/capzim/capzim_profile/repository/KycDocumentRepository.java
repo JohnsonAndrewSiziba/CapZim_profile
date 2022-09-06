@@ -14,4 +14,5 @@ import java.util.UUID;
 
 @Repository
 public interface KycDocumentRepository extends JpaRepository<KycDocument, UUID> {
+    KycDocument getKycDocumentById(UUID id);
 }

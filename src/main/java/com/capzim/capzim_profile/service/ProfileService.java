@@ -4,20 +4,21 @@ import com.capzim.capzim_profile.entity.KycDocument;
 import com.capzim.capzim_profile.entity.Profile;
 import com.capzim.capzim_profile.model.EditProfileDto;
 import com.capzim.capzim_profile.model.KycDocumentRequestDto;
+import com.capzim.capzim_profile.model.KycDocumentResponseModel;
+import com.capzim.capzim_profile.model.ProfilePictureDto;
 import com.capzim.capzim_profile.repository.KycDocumentRepository;
 import com.capzim.capzim_profile.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 
 /**
@@ -103,6 +104,8 @@ public class ProfileService {
     public Profile saveProfilePicture(MultipartFile file, Profile profile) throws Exception {
         log.info("Inside saveProfilePicture method of ProfileService");
 
+        // TODO: 6/9/2022 Profile picture constraints
+        
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         try {
 
@@ -188,6 +191,27 @@ public class ProfileService {
             log.error(e.getMessage());
             throw new Exception("Could not save kyc document file: " + fileName);
         }
+
+    }
+
+    public List<KycDocumentResponseModel> getAllUserKycDocuments(UUID userId) {
+        Profile profile = this.getProfileByUserId(userId);
+        List<KycDocumentResponseModel> kycDocumentResponseModelList = new ArrayList<>();
+
+        for (KycDocument kycDocument: profile.getKycDocuments()){
+            KycDocumentResponseModel kycDocumentResponseModel = new KycDocumentResponseModel(kycDocument);
+            kycDocumentResponseModelList.add(kycDocumentResponseModel);
+        }
+
+        return kycDocumentResponseModelList;
+    }
+
+    public Profile updateProfilePicture(ProfilePictureDto profilePictureDto, UUID userId) throws Exception {
+        Profile profile = this.getProfileByUserId(userId);
+
+        profile = this.saveProfilePicture(profilePictureDto.getFile(), profile);
+
+        return profile;
 
     }
 }
