@@ -6,7 +6,6 @@ import com.capzim.capzim_profile.service.KycDocumentService;
 import com.capzim.capzim_profile.service.ProfileService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
@@ -71,12 +70,29 @@ public class ProfileController {
     }
 
 
+//    @GetMapping("/profile_picture/download")
+//    @Operation(summary = "Download Profile Picture")
+//    public ResponseEntity<Resource> getProfilePicture(@RequestHeader("x-auth-user-id") UUID userId){
+//        log.info("Inside getProfilePicture of ProfileController");
+//
+//        Profile profile = profileService.getProfileByUserId(userId);
+//
+//        return ResponseEntity.ok()
+//                .contentType(MediaType.parseMediaType(profile.getProfilePictureFileType()))
+//                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + profile.getProfilePictureFileName() + "\"")
+//                .body(new ByteArrayResource(profile.getProfilePictureFile()));
+//    }
+
     @GetMapping("/profile_picture/download")
     @Operation(summary = "Download Profile Picture")
-    public ResponseEntity<Resource> getProfilePicture(@RequestHeader("x-auth-user-id") UUID userId){
-        log.info("Inside getProfilePicture of ProfileController");
+    public ResponseEntity<Resource> downloadProfilePicture(@RequestHeader("x-auth-user-id") UUID userId) {
+        log.info("Inside downloadProfilePicture of ProfileController");
 
         Profile profile = profileService.getProfileByUserId(userId);
+
+        if (profile.getProfilePictureFile() == null){
+            return ResponseEntity.notFound().build();
+        }
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(profile.getProfilePictureFileType()))
@@ -180,23 +196,6 @@ public class ProfileController {
         return ResponseEntity.ok().body(profilePictureResponseModel);
     }
 
-
-    @GetMapping("/profile_picture/download")
-    @Operation(summary = "Download Profile Picture")
-    public ResponseEntity<Resource> downloadProfilePicture(@RequestHeader("x-auth-user-id") UUID userId) {
-        log.info("Inside downloadProfilePicture of ProfileController");
-
-        Profile profile = profileService.getProfileByUserId(userId);
-
-        if (profile.getProfilePictureFile() == null){
-            return ResponseEntity.notFound().build();
-        }
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(profile.getProfilePictureFileType()))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + profile.getProfilePictureFileName() + "\"")
-                .body(new ByteArrayResource(profile.getProfilePictureFile()));
-    }
 
 
     @PostMapping("/add_secondary_phone_number")
