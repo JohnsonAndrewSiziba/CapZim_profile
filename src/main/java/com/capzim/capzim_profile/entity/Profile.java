@@ -65,6 +65,11 @@ public class Profile {
     @NotBlank(message = "Country of Residence is Mandatory")
     private String country;
 
+    @Type(type="org.hibernate.type.UUIDCharType")
+    private UUID brokerId;
+
+    @Type(type="org.hibernate.type.UUIDCharType")
+    private UUID investorId;
 
     // TODO: 2/9/2022 Add this in investor management service
 //    @Enumerated(EnumType.STRING)
@@ -81,7 +86,7 @@ public class Profile {
     private String profilePictureFileName;
     private String profilePictureFileType;
 
-    private boolean enabled;
+    private boolean enabled = false;
 
     private boolean approved;
 
@@ -134,6 +139,15 @@ public class Profile {
     @ToString.Exclude
     private IdDocument idDocument;
 
+    @OneToOne(
+            mappedBy = "profile",
+            fetch = FetchType.LAZY,
+            orphanRemoval = true,
+            cascade = CascadeType.ALL
+    )
+    @JsonIgnoreProperties("profile")
+    @ToString.Exclude
+    private BankDetails bankDetails;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

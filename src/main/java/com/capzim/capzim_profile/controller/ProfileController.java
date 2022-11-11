@@ -6,6 +6,7 @@ import com.capzim.capzim_profile.service.KycDocumentService;
 import com.capzim.capzim_profile.service.ProfileService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
@@ -99,6 +100,34 @@ public class ProfileController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + profile.getProfilePictureFileName() + "\"")
                 .body(new ByteArrayResource(profile.getProfilePictureFile()));
     }
+
+
+    @GetMapping("/profile_picture/name")
+    @Operation(summary = "Get Profile Picture Name")
+    public ResponseEntity<ProfilePictureResponseModel> getProfilePictureName(@RequestHeader("x-auth-user-id") UUID userId){
+        log.info("Inside getProfilePictureName of ProfileController");
+
+        Profile profile = profileService.getProfileByUserId(userId);
+
+        return ResponseEntity.ok().body(new ProfilePictureResponseModel(profile));
+    }
+
+    @GetMapping("/id_document/name")
+    @Operation(summary = "Get ID Document Name")
+    public ResponseEntity<IdDocumentResponseModel> getIdDocumentName(@RequestHeader("x-auth-user-id") UUID userId){
+        log.info("Inside getIdDocumentName of ProfileController");
+
+        Profile profile = profileService.getProfileByUserId(userId);
+
+        IdDocument idDocument = profile.getIdDocument();
+
+        if (idDocument == null){
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok().body(new IdDocumentResponseModel(idDocument));
+    }
+
 
 
     @GetMapping("/signature/download")
@@ -281,6 +310,49 @@ public class ProfileController {
                 .body(new ByteArrayResource(idDocument.getIdFile()));
     }
 
+    @PostMapping("/bank_details/update")
+    public ResponseEntity<BankDetailsResponseModel> updateBankingDetails(@RequestBody BankDetails bankDetails, @RequestHeader("x-auth-user-id") UUID userId){
+        log.info("Inside updateBankingDetails of ProfileController");
+
+        bankDetails = profileService.updateBankDetails(bankDetails, userId);
+
+        return ResponseEntity.ok().body(new BankDetailsResponseModel(bankDetails));
+    }
+
+    @SneakyThrows
+    @PostMapping("/bank_details/bank_statement/update")
+    public ResponseEntity<BankDetailsResponseModel> updateBankStatement(@ModelAttribute BankStatementRequestDto bankStatementRequestDto, @RequestHeader("x-auth-user-id") UUID userId){
+        log.info("Inside updateBankStatement of ProfileController");
+
+        BankDetails bankDetails = profileService.updateBankStatement(bankStatementRequestDto, userId);
+
+        return ResponseEntity.ok().body(new BankDetailsResponseModel(bankDetails));
+    }
+
+    @GetMapping("/bank_details")
+    public ResponseEntity<BankDetailsResponseModel> getBankingDetails(@RequestHeader("x-auth-user-id") UUID userId){
+        log.info("Inside getBankingDetails of ProfileController");
+
+        BankDetails bankDetails = profileService.getBankDetails(userId);
+
+        return ResponseEntity.ok().body(new BankDetailsResponseModel(bankDetails));
+    }
+
+    @GetMapping("/bank_details/bank_statement/download")
+    public ResponseEntity<Resource> downloadBankStatement(@RequestHeader("x-auth-user-id") UUID userId){
+        log.info("Inside downloadBankStatement of ProfileController");
+
+        BankDetails bankDetails = profileService.getBankDetails(userId);
+
+        if (bankDetails.getBankStatementFile() == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(bankDetails.getBankStatementFileType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + bankDetails.getBankStatementFileName() + "\"")
+                .body(new ByteArrayResource(bankDetails.getBankStatementFile()));
+    }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)

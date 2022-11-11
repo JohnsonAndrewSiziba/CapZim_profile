@@ -45,6 +45,8 @@ public class ProfileService {
 
     private final IdDocumentRepository idDocumentRepository;
 
+    private final BankDetailsRepository bankDetailsRepository;
+
     public void createProfileIfNotExist(UUID userId) {
 
         Profile profile = profileRepository.findProfileByUserId(userId);
@@ -78,8 +80,10 @@ public class ProfileService {
 
         Profile profile = this.getProfileByUserId(userId);
 
-        SimpleDateFormat df = new SimpleDateFormat("d-M-y");
+        SimpleDateFormat df = new SimpleDateFormat("y-M-d");
         Date dateOfBirth = df.parse(editProfileDto.getDateOfBirth());
+
+        profile.setBrokerId(editProfileDto.getBrokerId());
 
         profile.setDateOfBirth(dateOfBirth);
 
@@ -97,15 +101,19 @@ public class ProfileService {
 
         profile.setCity(editProfileDto.getCity());
 
-        profile.setCountry(profile.getCountry());
+        profile.setCountry(editProfileDto.getCountry());
 
         profile.setTermsAndConditionsAccepted(editProfileDto.isTermsAndConditionsAccepted());
 
         profileRepository.save(profile);
 
-        profile = this.saveProfilePicture(editProfileDto.getProfilePicture(), profile);
+        if (editProfileDto.getProfilePicture() != null){
+            profile = this.saveProfilePicture(editProfileDto.getProfilePicture(), profile);
+        }
 
-        profile = this.saveSignature(editProfileDto.getSignature(), profile);
+        if (editProfileDto.getSignature() != null){
+            profile = this.saveSignature(editProfileDto.getSignature(), profile);
+        }
 
         return profile;
     }
@@ -156,7 +164,7 @@ public class ProfileService {
         }
     }
 
-    public Profile getProfileByUserId(UUID userId) {
+    public Profile getProfileByUserId(UUID userId ) {
         log.info("Inside getProfileByUserId of ProfileService");
         Profile profile = profileRepository.findProfileByUserId(userId);
 
@@ -164,7 +172,12 @@ public class ProfileService {
             log.info("Creating new profile for user with id: {}", userId.toString());
             profile = new Profile();
             profile.setUserId(userId);
-            profileRepository.save(profile);
+            try {
+                profileRepository.save(profile);
+            }
+            catch (Exception e){
+
+            }
         }
 
         return profile;
@@ -340,6 +353,66 @@ public class ProfileService {
         } catch (Exception e) {
             log.error(e.getMessage());
             throw new Exception("Could not save kyc document file: " + fileName);
+        }
+
+    }
+
+    public BankDetails getBankDetails(UUID userId) {
+        log.info("Inside getBankDetails of ProfileService");
+
+        Profile profile = this.getProfileByUserId(userId);
+
+        BankDetails bankDetails = profile.getBankDetails();
+
+        if (bankDetails == null){
+            bankDetails = new BankDetails();
+            bankDetails.setProfile(profile);
+            try {
+                bankDetailsRepository.save(bankDetails);
+            } catch (Exception e) {log.error("Failed to save new bankDetailsObject");}
+        }
+        return bankDetails;
+    }
+
+    public BankDetails updateBankDetails(BankDetails bankDetails, UUID userId) {
+        log.info("Inside updateBankDetails of ProfileService");
+        BankDetails savedBankDetails = this.getBankDetails(userId);
+
+        savedBankDetails.setBankId(bankDetails.getBankId());
+        savedBankDetails.setAccountName(bankDetails.getAccountName());
+        savedBankDetails.setBranch(bankDetails.getBranch());
+        savedBankDetails.setAccountNumber(bankDetails.getAccountNumber());
+
+        return bankDetailsRepository.save(savedBankDetails);
+
+    }
+
+    public BankDetails updateBankStatement(BankStatementRequestDto bankStatementRequestDto, UUID userId) throws Exception {
+        log.info("Inside updateBankStatement of ProfileService");
+        BankDetails bankDetails = this.getBankDetails(userId);
+
+        if (bankStatementRequestDto.getFile().isEmpty()){
+            return null;
+        }
+
+        MultipartFile file = bankStatementRequestDto.getFile();
+
+        String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+        try {
+
+            if (fileName.contains("..")) {
+                throw new Exception("Filename contains invalid path sequence: " + fileName);
+            }
+
+            bankDetails.setBankStatementFile(file.getBytes());
+            bankDetails.setBankStatementFileName(fileName);
+            bankDetails.setBankStatementFileType(file.getContentType());
+
+            return bankDetailsRepository.save(bankDetails);
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new Exception("Could not save profile picture file: " + fileName);
         }
 
     }

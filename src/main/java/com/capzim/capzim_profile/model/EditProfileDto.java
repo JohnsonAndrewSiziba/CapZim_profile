@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.UUID;
+
 /**
  * @author Johnson Andrew Siziba (sizibajohnsona@gmail.com,+263784310119)
  * @version 1.0
@@ -41,6 +43,8 @@ public class EditProfileDto {
     private String city;
 
     private String country;
+
+    private UUID brokerId;
 
     private boolean termsAndConditionsAccepted;
 

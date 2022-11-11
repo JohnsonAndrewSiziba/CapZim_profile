@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * @author Johnson Andrew Siziba (sizibajohnsona@gmail.com,+263784310119)
@@ -21,6 +22,8 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProfileResponseModel {
+
+    private UUID id;
     private Date dateOfBirth;
 
     private Gender gender;
@@ -44,6 +47,8 @@ public class ProfileResponseModel {
 
     private String country;
 
+    private UUID brokerId;
+
     private boolean termsAndConditionsAccepted;
 
     private boolean enabled;
@@ -51,6 +56,7 @@ public class ProfileResponseModel {
     private boolean approved;
 
     public ProfileResponseModel(Profile profile){
+        this.id = profile.getId();
         this.dateOfBirth = profile.getDateOfBirth();
         this.gender = profile.getGender();
         this.profilePicture = null;
@@ -66,5 +72,6 @@ public class ProfileResponseModel {
         this.enabled = profile.isEnabled();
         this.approved = profile.isApproved();
         this.termsAndConditionsAccepted = profile.isTermsAndConditionsAccepted();
+        this.brokerId = profile.getBrokerId();
     }
 }
