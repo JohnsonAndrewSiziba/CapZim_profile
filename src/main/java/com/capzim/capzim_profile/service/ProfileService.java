@@ -80,28 +80,53 @@ public class ProfileService {
 
         Profile profile = this.getProfileByUserId(userId);
 
-        SimpleDateFormat df = new SimpleDateFormat("y-M-d");
-        Date dateOfBirth = df.parse(editProfileDto.getDateOfBirth());
+        System.out.println(editProfileDto);
 
-        profile.setBrokerId(editProfileDto.getBrokerId());
+        if (editProfileDto.getDateOfBirth() != null){
+            SimpleDateFormat df = new SimpleDateFormat("y-M-d");
+            Date dateOfBirth = df.parse(editProfileDto.getDateOfBirth());
+            profile.setDateOfBirth(dateOfBirth);
+        }
 
-        profile.setDateOfBirth(dateOfBirth);
+        if (editProfileDto.getBrokerId() != null){
+            profile.setBrokerId(editProfileDto.getBrokerId());
+        }
 
-        profile.setGender(editProfileDto.getGender());
+        if (editProfileDto.getGender() != null){
+            profile.setGender(editProfileDto.getGender());
+        }
 
-        profile.setForeignOrLocal(editProfileDto.getForeignOrLocal());
+        if (editProfileDto.getForeignOrLocal() != null){
+            profile.setForeignOrLocal(editProfileDto.getForeignOrLocal());
+        }
 
-        profile.setNationalIdNumber(editProfileDto.getNationalIdNumber());
+        if (editProfileDto.getNationalIdNumber() != null){
+            profile.setNationalIdNumber(editProfileDto.getNationalIdNumber());
+        }
 
-        profile.setPassportNumber(editProfileDto.getPassportNumber());
+        if (editProfileDto.getPassportNumber() != null){
+            profile.setPassportNumber(editProfileDto.getPassportNumber());
+        }
 
-        profile.setAddressLine1(editProfileDto.getAddressLine1());
+        if (editProfileDto.getAddressLine1() != null){
+            profile.setAddressLine1(editProfileDto.getAddressLine1());
+        }
 
-        profile.setAddressLine2(editProfileDto.getAddressLine2());
+        if (editProfileDto.getAddressLine2() != null){
+            profile.setAddressLine2(editProfileDto.getAddressLine2());
+        }
 
-        profile.setCity(editProfileDto.getCity());
+        if (editProfileDto.getCity() != null){
+            profile.setCity(editProfileDto.getCity());
+        }
 
-        profile.setCountry(editProfileDto.getCountry());
+        if (editProfileDto.getCountryOfResidence() != null){
+            profile.setCountryOfResidence(editProfileDto.getCountryOfResidence());
+        }
+
+        if (editProfileDto.getCountry() != null){
+            profile.setCountry(editProfileDto.getCountry());
+        }
 
         profile.setTermsAndConditionsAccepted(editProfileDto.isTermsAndConditionsAccepted());
 
@@ -377,6 +402,8 @@ public class ProfileService {
     public BankDetails updateBankDetails(BankDetails bankDetails, UUID userId) {
         log.info("Inside updateBankDetails of ProfileService");
         BankDetails savedBankDetails = this.getBankDetails(userId);
+
+        System.out.println(bankDetails);
 
         savedBankDetails.setBankId(bankDetails.getBankId());
         savedBankDetails.setAccountName(bankDetails.getAccountName());

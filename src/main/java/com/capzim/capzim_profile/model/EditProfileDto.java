@@ -48,4 +48,6 @@ public class EditProfileDto {
 
     private boolean termsAndConditionsAccepted;
 
+    private String countryOfResidence;
+
 }

@@ -47,5 +47,6 @@ public class BankDetailsResponseModel {
         this.bankStatementFileType = bankDetails.getBankStatementFileType();
         this.verified = bankDetails.isVerified();
         this.verifiedBy = bankDetails.getVerifiedBy();
+        this.bankStatementDownloadPath = "/api/v1/profiles/bank_details/bank_statement/download";
     }
 }

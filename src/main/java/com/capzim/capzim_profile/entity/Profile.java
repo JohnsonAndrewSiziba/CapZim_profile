@@ -96,6 +96,8 @@ public class Profile {
 
     private boolean termsAndConditionsAccepted = true;
 
+    private String countryOfResidence;
+
     @OneToMany(
             mappedBy = "profile",
             fetch = FetchType.LAZY,

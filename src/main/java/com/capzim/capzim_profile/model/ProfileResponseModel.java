@@ -55,6 +55,8 @@ public class ProfileResponseModel {
 
     private boolean approved;
 
+    private String countryOfResidence;
+
     public ProfileResponseModel(Profile profile){
         this.id = profile.getId();
         this.dateOfBirth = profile.getDateOfBirth();
@@ -73,5 +75,6 @@ public class ProfileResponseModel {
         this.approved = profile.isApproved();
         this.termsAndConditionsAccepted = profile.isTermsAndConditionsAccepted();
         this.brokerId = profile.getBrokerId();
+        this.countryOfResidence = profile.getCountryOfResidence();
     }
 }
