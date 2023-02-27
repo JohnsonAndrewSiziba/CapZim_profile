@@ -101,6 +101,23 @@ public class ProfileController {
                 .body(new ByteArrayResource(profile.getProfilePictureFile()));
     }
 
+    @GetMapping("/profile_picture/{userId}/download")
+    @Operation(summary = "Download Profile Picture By User Id")
+    public ResponseEntity<Resource> downloadProfilePictureByUserId(@PathVariable("userId") UUID userId) {
+        log.info("Inside downloadProfilePictureByUserId of ProfileController");
+
+        Profile profile = profileService.getProfileByUserId(userId);
+
+        if (profile.getProfilePictureFile() == null){
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(profile.getProfilePictureFileType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + profile.getProfilePictureFileName() + "\"")
+                .body(new ByteArrayResource(profile.getProfilePictureFile()));
+    }
+
 
     @GetMapping("/profile_picture/name")
     @Operation(summary = "Get Profile Picture Name")
