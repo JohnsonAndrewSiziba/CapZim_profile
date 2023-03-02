@@ -73,7 +73,7 @@ public class ProfileManagementController {
     }
 
     // get user id document by user id
-    @GetMapping("/id-documents/{userId}/download")
+    @GetMapping("/id-document/{userId}/download")
     public ResponseEntity<Resource> getUserIdDocumentByUserId(@RequestHeader("Authorization") String bearerToken, @PathVariable("userId") UUID userId){
         log.info("Inside getUserIdDocumentByUserId method of ProfileManagementController class");
 
