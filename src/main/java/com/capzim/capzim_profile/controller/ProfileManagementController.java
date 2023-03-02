@@ -1,11 +1,16 @@
 package com.capzim.capzim_profile.controller;
 
+import com.capzim.capzim_profile.entity.Profile;
+import com.capzim.capzim_profile.model.ProfileResponseModel;
 import com.capzim.capzim_profile.service.ProfileService;
+import com.capzim.capzim_profile.utility.RolesUtility;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 /**
  * @author Johnson Andrew Siziba (sizibajohnsona@gmail.com,+263784310119)
@@ -19,64 +24,26 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProfileManagementController {
 
     private final ProfileService profileService;
+    private final RolesUtility rolesUtility;
 
 
-    private ResponseEntity<?> verifyIdDocument(){
-        // TODO: 5/9/2022
-        return null;
-    }
+    // get user profile by user id
+    @GetMapping("/profiles/{id}")
+    public ResponseEntity<?> getUserProfileById(@RequestHeader("Authorization") String bearerToken, @PathVariable("id") UUID userId){
+        log.info("Inside getUserProfileById method of ProfileManagementController class");
 
-    private ResponseEntity<?> verifyKycDocument(){
-        // TODO: 5/9/2022
-        return null;
-    }
+        if (!rolesUtility.hasSystemAdminRole(bearerToken)){
+            log.error("Role ROLE_SYSTEM_ADMIN not found");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
+        log.info("Getting user profile by id: {}", userId);
 
-    private ResponseEntity<?> toggleIdDocumentEditing(){
-        // TODO: 5/9/2022
-        return null;
-    }
+        Profile profile = profileService.getUserProfileByUserId(userId);
 
+        ProfileResponseModel profileResponseModel = new ProfileResponseModel(profile);
 
-    private ResponseEntity<?> toggleKycDocumentEditing(){
-        // TODO: 5/9/2022
-        return null;
-    }
-
-
-    private ResponseEntity<?> addCommentsToKycDocument(){
-        // TODO: 5/9/2022
-        return null;
-    }
-
-
-    private ResponseEntity<?> addCommentsToIdDocument(){
-        // TODO: 5/9/2022
-        return null;
-    }
-
-
-    private ResponseEntity<?> enableOrDisableProfile(){
-        // TODO: 5/9/2022
-        return null;
-    }
-
-
-    private ResponseEntity<?> approveProfile(){
-        // TODO: 5/9/2022
-        return null;
-    }
-
-
-    private ResponseEntity<?> addCommentsToProfile(){
-        // TODO: 5/9/2022
-        return null;
-    }
-
-
-    private ResponseEntity<?> sendNotificationToProfile(){
-        // TODO: 5/9/2022
-        return null;
+        return ResponseEntity.ok().body(profileResponseModel);
     }
 
 }

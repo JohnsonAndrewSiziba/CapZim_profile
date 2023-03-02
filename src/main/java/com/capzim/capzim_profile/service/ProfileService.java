@@ -443,4 +443,15 @@ public class ProfileService {
         }
 
     }
+
+    public Profile getUserProfileByUserId(UUID userId) {
+        log.info("Inside getUserProfileByUserId of ProfileService");
+        Profile profile = this.getProfileByUserId(userId);
+
+        if (profile == null){
+            return null;
+        }
+
+        return profile;
+    }
 }
