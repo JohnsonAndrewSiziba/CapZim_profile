@@ -4,6 +4,7 @@ import com.capzim.capzim_profile.entity.BankDetails;
 import com.capzim.capzim_profile.entity.IdDocument;
 import com.capzim.capzim_profile.entity.Profile;
 import com.capzim.capzim_profile.model.BankDetailsResponseModel;
+import com.capzim.capzim_profile.model.IdDocumentResponseModel;
 import com.capzim.capzim_profile.model.ProfileResponseModel;
 import com.capzim.capzim_profile.service.ProfileService;
 import com.capzim.capzim_profile.utility.RolesUtility;
@@ -96,6 +97,25 @@ public class ProfileManagementController {
                 .contentType(MediaType.parseMediaType(idDocument.getFileType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + idDocument.getIdFileName() + "\"")
                 .body(new ByteArrayResource(idDocument.getIdFile()));
+    }
+
+    // get ID document name by user id
+    @GetMapping("/id-document/{userId}/name")
+    public ResponseEntity<?> getUserIdDocumentNameByUserId(@RequestHeader("Authorization") String bearerToken, @PathVariable("userId") UUID userId){
+        log.info("Inside getUserIdDocumentNameByUserId method of ProfileManagementController class");
+
+        if (!rolesUtility.hasSystemAdminRole(bearerToken)){
+            log.error("Role ROLE_SYSTEM_ADMIN not found");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        Profile profile = profileService.getProfileByUserId(userId);
+
+        IdDocument idDocument = profile.getIdDocument();
+
+        if (idDocument == null){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().body(new IdDocumentResponseModel(idDocument));
     }
 
 }
