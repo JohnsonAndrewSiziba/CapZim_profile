@@ -1,6 +1,8 @@
 package com.capzim.capzim_profile.controller;
 
+import com.capzim.capzim_profile.entity.BankDetails;
 import com.capzim.capzim_profile.entity.Profile;
+import com.capzim.capzim_profile.model.BankDetailsResponseModel;
 import com.capzim.capzim_profile.model.ProfileResponseModel;
 import com.capzim.capzim_profile.service.ProfileService;
 import com.capzim.capzim_profile.utility.RolesUtility;
@@ -44,6 +46,25 @@ public class ProfileManagementController {
         ProfileResponseModel profileResponseModel = new ProfileResponseModel(profile);
 
         return ResponseEntity.ok().body(profileResponseModel);
+    }
+
+    // get user bank details by user id
+    @GetMapping("/bank-details/{userId}")
+    public ResponseEntity<?> getUserBankDetailsByUserId(@RequestHeader("Authorization") String bearerToken, @PathVariable("userId") UUID userId){
+        log.info("Inside getUserBankDetailsByUserId method of ProfileManagementController class");
+
+        if (!rolesUtility.hasSystemAdminRole(bearerToken)){
+            log.error("Role ROLE_SYSTEM_ADMIN not found");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        log.info("Getting user bank details by user id: {}", userId);
+
+        BankDetails bankDetails = profileService.getBankDetails(userId);
+
+        BankDetailsResponseModel bankDetailsResponseModel = new BankDetailsResponseModel(bankDetails);
+
+        return ResponseEntity.ok().body(bankDetailsResponseModel);
     }
 
 }
