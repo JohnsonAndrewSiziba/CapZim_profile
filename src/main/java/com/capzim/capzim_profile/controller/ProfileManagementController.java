@@ -1,6 +1,7 @@
 package com.capzim.capzim_profile.controller;
 
 import com.capzim.capzim_profile.entity.BankDetails;
+import com.capzim.capzim_profile.entity.IdDocument;
 import com.capzim.capzim_profile.entity.Profile;
 import com.capzim.capzim_profile.model.BankDetailsResponseModel;
 import com.capzim.capzim_profile.model.ProfileResponseModel;
@@ -8,7 +9,11 @@ import com.capzim.capzim_profile.service.ProfileService;
 import com.capzim.capzim_profile.utility.RolesUtility;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -65,6 +70,32 @@ public class ProfileManagementController {
         BankDetailsResponseModel bankDetailsResponseModel = new BankDetailsResponseModel(bankDetails);
 
         return ResponseEntity.ok().body(bankDetailsResponseModel);
+    }
+
+    // get user id document by user id
+    @GetMapping("/id-documents/{userId}/download")
+    public ResponseEntity<Resource> getUserIdDocumentByUserId(@RequestHeader("Authorization") String bearerToken, @PathVariable("userId") UUID userId){
+        log.info("Inside getUserIdDocumentByUserId method of ProfileManagementController class");
+
+        if (!rolesUtility.hasSystemAdminRole(bearerToken)){
+            log.error("Role ROLE_SYSTEM_ADMIN not found");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        log.info("Getting user id document by user id: {}", userId);
+
+        Profile profile = profileService.getProfileByUserId(userId);
+
+        IdDocument idDocument = profile.getIdDocument();
+
+        if (idDocument == null){
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(idDocument.getFileType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + idDocument.getIdFileName() + "\"")
+                .body(new ByteArrayResource(idDocument.getIdFile()));
     }
 
 }
